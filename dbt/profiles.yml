@@ -1,0 +1,12 @@
+ebury_pipeline:
+  target: prod
+  outputs:
+    prod:
+      type: postgres
+      host: "{{ env_var('DW_HOST', 'postgres') }}"
+      port: "{{ env_var('DW_PORT', '5432') | int }}"
+      dbname: "{{ env_var('DW_DB', 'ebury_dw') }}"
+      user: "{{ env_var('DW_USER', 'dw_user') }}"
+      password: "{{ env_var('DW_PASSWORD', 'dw_password') }}"
+      schema: public
+      threads: 4

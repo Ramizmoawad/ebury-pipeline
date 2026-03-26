@@ -1,0 +1,22 @@
+version: 2
+models:
+  - name: dim_products
+    columns:
+      - name: product_sk
+        tests: [not_null, unique]
+      - name: product_id
+        tests: [not_null, unique]
+  - name: fact_transactions
+    columns:
+      - name: transaction_sk
+        tests: [not_null, unique]
+      - name: is_clean_record
+        tests: [not_null]
+  - name: agg_monthly_sales
+    columns:
+      - name: year_month
+        tests: [not_null]
+  - name: agg_customer_summary
+    columns:
+      - name: customer_id
+        tests: [not_null, unique]

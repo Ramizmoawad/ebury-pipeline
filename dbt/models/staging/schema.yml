@@ -1,0 +1,14 @@
+version: 2
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      - name: customer_transactions
+models:
+  - name: stg_customer_transactions
+    description: "Cleaned and typed staging layer"
+    columns:
+      - name: _row_id
+        tests: [not_null, unique]
+      - name: dq_flags
+        tests: [not_null]

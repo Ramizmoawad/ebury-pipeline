@@ -1,0 +1,19 @@
+name: 'ebury_pipeline'
+version: '1.0.0'
+config-version: 2
+profile: 'ebury_pipeline'
+model-paths: ["models"]
+macro-paths: ["macros"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+models:
+  ebury_pipeline:
+    staging:
+      +schema: staging
+      +materialized: view
+      +tags: ["staging"]
+    marts:
+      +schema: marts
+      +materialized: table
+      +tags: ["marts"]
