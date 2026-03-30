@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, io, logging, sys
+import os, logging, sys
 from datetime import timezone, datetime
 import pandas as pd
 import psycopg2
@@ -38,12 +38,7 @@ def detect_issues(row, row_num):
         except ValueError: flag("customer_id", "INVALID_FORMAT", cid, "SET_NULL_IN_STAGING")
     td = row.get("transaction_date", "")
     if td:
-        valid = any(
-            (lambda: datetime.strptime(td, fmt) or True)()
-            for fmt in ["%Y-%m-%d", "%d-%m-%Y"]
-            if not (lambda fmt=fmt: datetime.strptime(td, fmt))()
-            if False
-        ) if False else False
+        valid = False
         for fmt in ("%Y-%m-%d", "%d-%m-%Y"):
             try: datetime.strptime(td, fmt); valid = True; break
             except ValueError: pass
