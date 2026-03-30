@@ -1,7 +1,26 @@
+-- =============================================================================
+-- postgres/init.sql
+-- Ejecutado una sola vez cuando PostgreSQL arranca por primera vez.
+-- Crea las bases de datos, usuarios, schemas y permisos necesarios.
+-- =============================================================================
+
+-- ---------------------------------------------------------------------------
+-- Base de datos de Airflow
+-- ---------------------------------------------------------------------------
 CREATE DATABASE airflow;
 CREATE USER airflow WITH PASSWORD 'airflow';
 GRANT ALL PRIVILEGES ON DATABASE airflow TO airflow;
 
+\c airflow;
+-- PostgreSQL 15+ no da permisos en schema public por defecto.
+-- Airflow necesita crear tablas aquí.
+GRANT ALL ON SCHEMA public TO airflow;
+ALTER SCHEMA public OWNER TO airflow;
+
+-- ---------------------------------------------------------------------------
+-- Base de datos del Data Warehouse
+-- ---------------------------------------------------------------------------
+\c postgres;
 CREATE DATABASE ebury_dw;
 CREATE USER dw_user WITH PASSWORD 'dw_password';
 GRANT ALL PRIVILEGES ON DATABASE ebury_dw TO dw_user;
@@ -18,6 +37,7 @@ GRANT ALL PRIVILEGES ON SCHEMA staging TO dw_user;
 GRANT ALL PRIVILEGES ON SCHEMA marts   TO dw_user;
 GRANT ALL PRIVILEGES ON SCHEMA audit   TO dw_user;
 
+-- Tabla de aterrizaje: todas las columnas TEXT (raw vault)
 CREATE TABLE IF NOT EXISTS raw.customer_transactions (
     _row_id          SERIAL PRIMARY KEY,
     _loaded_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -32,6 +52,7 @@ CREATE TABLE IF NOT EXISTS raw.customer_transactions (
     tax              TEXT
 );
 
+-- Tabla de audit: registro permanente de problemas de calidad
 CREATE TABLE IF NOT EXISTS audit.data_quality_log (
     id               SERIAL PRIMARY KEY,
     logged_at        TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
@@ -43,6 +64,12 @@ CREATE TABLE IF NOT EXISTS audit.data_quality_log (
     resolution       TEXT,
     pipeline_run_id  TEXT
 );
+
+-- Ownership explícito para evitar errores de TRUNCATE en dw_user
+ALTER TABLE raw.customer_transactions OWNER TO dw_user;
+ALTER SEQUENCE raw.customer_transactions__row_id_seq OWNER TO dw_user;
+ALTER TABLE audit.data_quality_log OWNER TO dw_user;
+ALTER SEQUENCE audit.data_quality_log_id_seq OWNER TO dw_user;
 
 GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA raw   TO dw_user;
 GRANT ALL PRIVILEGES ON ALL TABLES    IN SCHEMA audit TO dw_user;

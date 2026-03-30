@@ -29,6 +29,7 @@ x-airflow-common: &airflow-common
       condition: service_healthy
 
 services:
+
   postgres:
     image: postgres:16-alpine
     container_name: ebury_postgres
@@ -55,8 +56,8 @@ services:
     command:
       - -c
       - |
-        airflow db migrate
-        airflow users create \
+        python -m airflow db migrate
+        python -m airflow users create \
           --username admin \
           --firstname Admin \
           --lastname User \
@@ -111,7 +112,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    entrypoint: ["tail", "-f", "/dev/null"]
+    entrypoint:
+      - /bin/bash
+      - -c
+      - |
+        dbt deps --project-dir /usr/app/dbt --profiles-dir /usr/app/dbt
+        echo "dbt deps installed"
+        tail -f /dev/null
 
 volumes:
   postgres_data:
