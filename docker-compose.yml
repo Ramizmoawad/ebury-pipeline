@@ -113,7 +113,7 @@ services:
       postgres:
         condition: service_healthy
     entrypoint:
-      - /bin/bash
+      - /bin/sh
       - -c
       - |
         dbt deps --project-dir /usr/app/dbt --profiles-dir /usr/app/dbt
